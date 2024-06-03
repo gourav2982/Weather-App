@@ -13,8 +13,8 @@ class HourlyForcast extends StatelessWidget {
       shadowColor: Colors.black,
       surfaceTintColor: Colors.blueGrey,
       child: SizedBox(
-        width: 100,
-        height: 140,
+        width: 140,
+        height: 180,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(13),
           child:  Column(
@@ -23,7 +23,8 @@ class HourlyForcast extends StatelessWidget {
             children: [
               Text(
                 time,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold,),
+                textAlign: TextAlign.center,
               ),
               const Padding(padding: EdgeInsets.all(8)),
               Icon(
