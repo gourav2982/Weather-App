@@ -69,9 +69,101 @@ class _WeatherscreenState extends State<Weatherscreen> {
       body: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            FutureBuilder(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              FutureBuilder(
+                  future: getCurrentWeather(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator.adaptive();
+                    }
+                    if (snapshot.hasError) {
+                      return const Text("Error");
+                    }
+                    temp = snapshot.data["list"][0]["main"]["temp"];
+                    return Card(
+                      elevation: 10,
+                      shadowColor: Colors.black,
+                      surfaceTintColor: Colors.blueGrey,
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 230,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(13),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "${double.parse((temp - 273.15).toStringAsFixed(2))} C",
+                                  style: const TextStyle(
+                                      fontSize: 40, fontWeight: FontWeight.bold),
+                                ),
+                                const Padding(padding: EdgeInsets.all(8)),
+                                 Icon(
+                                  getIcon(snapshot.data["list"][0]["weather"][0]["main"]),
+                                  size: 60,
+                                ),
+                                const Padding(padding: EdgeInsets.all(10)),
+                                 Text(
+                                  "${snapshot.data["list"][0]["weather"][0]["main"]}",
+                                  style: const TextStyle(fontSize: 25),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+              const SizedBox(
+                height: 20,
+              ),
+              const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Weather Forcast",
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  )),
+               FutureBuilder(
+                 future: getCurrentWeather(),
+                 builder: (context, snapshot) {
+                   if (snapshot.connectionState == ConnectionState.waiting) {
+                     return const CircularProgressIndicator.adaptive();
+                   }
+                   if (snapshot.hasError) {
+                     return const Text("Error");
+                   }
+                   List n =snapshot.data["list"];
+                   return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                     child: Row(
+                       mainAxisAlignment: MainAxisAlignment.spaceAround,
+                       children: [
+                         for(int i=1;i<n.length;i++)
+                           HourlyForcast(getIcon(snapshot.data["list"][i]["weather"][0]["main"]), "${((snapshot.data["list"][i]["dt_txt"]).toString()).substring(0,10)}\n${((snapshot.data["list"][i]["dt_txt"]).toString()).substring(11,16)}", "${snapshot.data["list"][i]["main"]["temp"]} k"),
+                        
+                       ],
+                     ),
+                   );
+                 },
+               ),
+              const SizedBox(
+                height: 20,
+              ),
+              const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Additional Information",
+                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  )),
+              const SizedBox(
+                height: 8,
+              ),
+              FutureBuilder(
                 future: getCurrentWeather(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -80,112 +172,22 @@ class _WeatherscreenState extends State<Weatherscreen> {
                   if (snapshot.hasError) {
                     return const Text("Error");
                   }
-                  temp = snapshot.data["list"][0]["main"]["temp"];
-                  return Card(
-                    elevation: 10,
-                    shadowColor: Colors.black,
-                    surfaceTintColor: Colors.blueGrey,
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 230,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(13),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                "${double.parse((temp - 273.15).toStringAsFixed(2))} C",
-                                style: const TextStyle(
-                                    fontSize: 40, fontWeight: FontWeight.bold),
-                              ),
-                              const Padding(padding: EdgeInsets.all(8)),
-                               Icon(
-                                getIcon(snapshot.data["list"][0]["weather"][0]["main"]),
-                                size: 60,
-                              ),
-                              const Padding(padding: EdgeInsets.all(10)),
-                               Text(
-                                "${snapshot.data["list"][0]["weather"][0]["main"]}",
-                                style: const TextStyle(fontSize: 25),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                  windsp = snapshot.data["list"][0]["wind"]["speed"];
+                  humidity = snapshot.data["list"][0]["main"]["humidity"];
+                  pressure = snapshot.data["list"][0]["main"]["pressure"];
+          
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      AdditionInfo(Icons.water_drop, "humidity", "$humidity"),
+                      AdditionInfo(Icons.wind_power, "Wind Speed", "$windsp"),
+                      AdditionInfo(Icons.umbrella, "Pressure", "$pressure")
+                    ],
                   );
-                }),
-            const SizedBox(
-              height: 20,
-            ),
-            const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Weather Forcast",
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                )),
-             FutureBuilder(
-               future: getCurrentWeather(),
-               builder: (context, snapshot) {
-                 if (snapshot.connectionState == ConnectionState.waiting) {
-                   return const CircularProgressIndicator.adaptive();
-                 }
-                 if (snapshot.hasError) {
-                   return const Text("Error");
-                 }
-                 List n =snapshot.data["list"];
-                 return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                   child: Row(
-                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                     children: [
-                       for(int i=1;i<n.length;i++)
-                         HourlyForcast(getIcon(snapshot.data["list"][i]["weather"][0]["main"]), "${((snapshot.data["list"][i]["dt_txt"]).toString()).substring(0,10)}\n${((snapshot.data["list"][i]["dt_txt"]).toString()).substring(11,16)}", "${snapshot.data["list"][i]["main"]["temp"]} k"),
-                      
-                     ],
-                   ),
-                 );
-               },
-             ),
-            const SizedBox(
-              height: 20,
-            ),
-            const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Additional Information",
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                )),
-            const SizedBox(
-              height: 8,
-            ),
-            FutureBuilder(
-              future: getCurrentWeather(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator.adaptive();
-                }
-                if (snapshot.hasError) {
-                  return const Text("Error");
-                }
-                windsp = snapshot.data["list"][0]["wind"]["speed"];
-                humidity = snapshot.data["list"][0]["main"]["humidity"];
-                pressure = snapshot.data["list"][0]["main"]["pressure"];
-
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    AdditionInfo(Icons.water_drop, "humidity", "$humidity"),
-                    AdditionInfo(Icons.wind_power, "Wind Speed", "$windsp"),
-                    AdditionInfo(Icons.umbrella, "Pressure", "$pressure")
-                  ],
-                );
-              },
-            )
-          ],
+                },
+              )
+            ],
+          ),
         ),
       ),
     );
